@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hello</title>
+
+    <style>
+        body,
+        button {
+            background-color: #000;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: #bbb;
+            font-size: 11px
+        }
+
+        code {
+            font-size: 12px
+        }
+
+        button {
+            border: 0;
+            padding: 0;
+            background-color: transparent;
+            cursor: pointer
+        }
+
+        i {
+            font-size: 9px
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            user-select: none
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #000
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background-color: #222
+        }
+
+        td,
+        th {
+            text-align: left;
+            padding: 5px;
+            overflow: hidden
+        }
+
+        tr:nth-child(even) {
+            background-color: #111
+        }
+
+        ul {
+            padding-left: 15px;
+            margin-top: 0;
+            margin-bottom: 0
+        }
+
+        a:link {
+            color: #4169e1;
+            text-decoration: none
+        }
+
+        a:visited {
+            color: #8b008b
+        }
+
+        a:hover {
+            color: #adff2f
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #111
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #222
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #333
+        }
+
+        .box {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden
+        }
+
+        .banner {
+            width: 100%;
+            height: 15rem
+        }
+
+        .pp {
+            filter: drop-shadow(0 0 20px #000) drop-shadow(0 0 10px rgba(0, 0, 0, .5));
+            width: 6rem;
+            height: 6rem;
+            position: relative;
+            bottom: calc(1.5rem + 6rem);
+            left: 1.5rem
+        }
+
+        .forcewrap {
+            word-wrap: break-word
+        }
+
+        .info {
+            padding: 5px
+        }
+
+        .InfoPanelCellImagePanel {
+            width: 2rem;
+            height: 2rem
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 45px
+        }
+
+        .flex {
+            flex-wrap: wrap;
+            display: flex
+        }
+
+        .short {
+            width: 1rem
+        }
+
+        .contentWidth {
+            overflow: hidden;
+            white-space: nowrap
+        }
+
+        .loader {
+            width: 100%;
+            height: 5px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .loader::after {
+            content: '';
+            width: 50%;
+            height: 5px;
+            background: #fff;
+            position: absolute;
+            box-sizing: border-box;
+            animation: hitZak .5s ease-in-out infinite normal
+        }
+
+        @keyframes hitZak {
+            0% {
+                left: 0;
+                transform: translateX(-100%)
+            }
+
+            100% {
+                left: 100%;
+                transform: translateX(0)
+            }
+        }
+
+        .emote {
+            width: 48px;
+            height: 48px;
+            padding: 5px
+        }
+
+        .emoteinfo {
+            width: 48px;
+            height: fit-content;
+            padding: 5px;
+            padding-top: 0;
+            word-wrap: break-word;
+            font-size: 9px;
+            text-align: center
+        }
+
+        .emotebox:hover {
+            background-color: #222
+        }
+
+        .showerror {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-right: -50%;
+            transform: translate(-50%, -50%)
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <h1>Hello</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec lobortis hendrerit erat, id blandit libero rhoncus
+        sodales. Nullam in imperdiet nisi, quis aliquet mauris. Aenean nulla neque, volutpat at nibh at, tincidunt
+        scelerisque lectus. Aliquam congue dui eget molestie laoreet. Donec condimentum nunc non urna tincidunt
+        dignissim. Fusce sagittis finibus dolor, in rhoncus enim efficitur vitae. Maecenas varius neque in metus rhoncus
+        egestas. Sed scelerisque dolor quis mattis gravida. Sed velit sapien, mattis vel posuere at, rutrum et nunc.
+        Integer auctor lectus leo, at semper leo fringilla non.
+    </p>
+
+</body>
+
+</html>

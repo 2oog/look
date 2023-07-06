@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Look</title>
+
+    <style>
+        body,
+        button {
+            background-color: #000;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: #bbb;
+            font-size: 11px
+        }
+
+        code {
+            font-size: 12px
+        }
+
+        button {
+            border: 0;
+            padding: 0;
+            background-color: transparent;
+            cursor: pointer
+        }
+
+        i {
+            font-size: 9px
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            user-select: none
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #000
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background-color: #222
+        }
+
+        td,
+        th {
+            text-align: left;
+            padding: 5px;
+            overflow: hidden
+        }
+
+        tr:nth-child(even) {
+            background-color: #111
+        }
+
+        ul {
+            padding-left: 15px;
+            margin-top: 0;
+            margin-bottom: 0
+        }
+
+        a:link {
+            color: #4169e1;
+            text-decoration: none
+        }
+
+        a:visited {
+            color: #8b008b
+        }
+
+        a:hover {
+            color: #adff2f
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #111
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #222
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #333
+        }
+
+        .box {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden
+        }
+
+        .banner {
+            width: 100%;
+            height: 15rem
+        }
+
+        .pp {
+            filter: drop-shadow(0 0 20px #000) drop-shadow(0 0 10px rgba(0, 0, 0, .5));
+            width: 6rem;
+            height: 6rem;
+            position: relative;
+            bottom: calc(1.5rem + 6rem);
+            left: 1.5rem
+        }
+
+        .forcewrap {
+            word-wrap: break-word
+        }
+
+        .info {
+            padding: 5px
+        }
+
+        .InfoPanelCellImagePanel {
+            width: 2rem;
+            height: 2rem
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 45px
+        }
+
+        .flex {
+            flex-wrap: wrap;
+            display: flex
+        }
+
+        .short {
+            width: 1rem
+        }
+
+        .contentWidth {
+            overflow: hidden;
+            white-space: nowrap
+        }
+
+        .loader {
+            width: 100%;
+            height: 5px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .loader::after {
+            content: '';
+            width: 50%;
+            height: 5px;
+            background: #fff;
+            position: absolute;
+            box-sizing: border-box;
+            animation: hitZak .5s ease-in-out infinite normal
+        }
+
+        @keyframes hitZak {
+            0% {
+                left: 0;
+                transform: translateX(-100%)
+            }
+
+            100% {
+                left: 100%;
+                transform: translateX(0)
+            }
+        }
+
+        .emote {
+            width: 48px;
+            height: 48px;
+            padding: 5px
+        }
+
+        .emoteinfo {
+            width: 48px;
+            height: fit-content;
+            padding: 5px;
+            padding-top: 0;
+            word-wrap: break-word;
+            font-size: 9px;
+            text-align: center
+        }
+
+        .emotebox:hover {
+            background-color: #222
+        }
+
+        .showerror {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-right: -50%;
+            transform: translate(-50%, -50%)
+        }
+    </style>
+
+    <script src="./docs/auth.js"></script>
+
+    <script>
+
+        const fmt = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+        // ----------------------------------------------------------------
+
+        function requests(METHOD, URL, HEADERS = {}, DATA = '') {
+            return new Promise(function (resolve) {
+                var xhr = new XMLHttpRequest();
+                xhr.open(METHOD, URL);
+
+                // Set headers
+                Object.entries(HEADERS).forEach(function ([key, value]) {
+                    xhr.setRequestHeader(key, value);
+                });
+
+                xhr.onload = function () {
+                    console.log(`[REQUESTS ${METHOD}] [${xhr.status}] ${URL}`);
+                    console.log(xhr);
+                    resolve(xhr);
+                };
+
+                xhr.send(DATA);
+            });
+        }
+
+        // ----------------------------------------------------------------
+
+        function timeDiff(dt) {
+            let year = 31536000;
+            let month = 2592000;
+            let day = 86400;
+            let hour = 3600;
+            let seconds = 60;
+
+            let now = new Date();
+            let diff = Math.floor((now - dt) / 1000);
+
+            let d_yrs = Math.floor(diff / year);
+            let d_mos = Math.floor((diff % year) / month);
+            let d_days = Math.floor(((diff % year) % month) / day);
+
+            if (d_mos == 12) {
+                d_mos -= 1;
+                d_days += 30;
+            }
+
+            let d_hrs = Math.floor((diff % day) / hour);
+            let d_mins = Math.floor((diff % hour) / seconds);
+            let d_secs = Math.floor(diff % seconds);
+
+            function f(number) {
+                return `${('0' + number).slice(-2)}`;
+            }
+
+            if (d_yrs > 0 || d_mos > 0 || d_days > 0) {
+                return `[` + `${(d_yrs > 0) ? d_yrs + 'y' : ''} ${(d_mos > 0) ? d_mos + 'm' : ''} ${(d_days > 0) ? d_days + 'd' : ''} ${f(d_hrs)}:${f(d_mins)}:${f(d_secs)}`.replace(/\s+/g, " ").trim() + `]`;
+            } else if (d_hrs > 0) {
+                return `[` + `${d_hrs}:${f(d_mins)}:${f(d_secs)}` + `]`;
+            } else if (d_mins > 0) {
+                return `[` + `${d_mins}:${f(d_secs)}` + `]`;
+            } else {
+                return `[` + `${d_secs}s` + `]`;
+            }
+        }
+
+        function timeToStringA(dt) {
+            let option = {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                hourCycle: 'h23',
+                timeZoneName: 'short'
+            };
+            return `${dt.toLocaleString("en-GB", option)} <code>${timeDiff(dt)}</code>`;
+        }
+
+        function timeToStringB(dt) {
+            let op1 = { weekday: 'short' };
+            let op2 = { year: 'numeric', month: 'numeric', day: 'numeric' };
+            let op3 = { hourCycle: 'h23' };
+            return `${dt.toLocaleDateString("en-GB", op1)}<br>${dt.toLocaleDateString("en-GB", op2)}<br>${dt.toLocaleTimeString("en-GB", op3)}`;
+        }
+
+        function isBoolean(o) {
+            return typeof o == 'boolean';
+        }
+
+        function isObject(o) {
+            return typeof o == "object";
+        }
+
+        function isArray(o) {
+            return Array.isArray(o);
+        }
+
+        function booleanVisualization(b) {
+            if (b) {
+                return '✅';
+            } else {
+                return '❌';
+            }
+        }
+
+        function twodigit(n) {
+            return ('0' + n).slice(-2);
+        }
+
+        function secondToHMS(sec) {
+
+            let d = Math.floor(sec / (86400));
+            let h = Math.floor((sec % 86400) / 3600);
+            let m = Math.floor((sec % 3600) / 60);
+            let s = sec % 60;
+
+            if (d > 0) {
+                return `${d}:${twodigit(h)}:${twodigit(m)}:${twodigit(s)}`;
+            } else if (h > 0) {
+                return `${h}:${twodigit(m)}:${twodigit(s)}`;
+            } else if (m > 0) {
+                return `${m}:${twodigit(s)}`;
+            } else {
+                return `${s}`;
+            }
+
+        }
+
+        function sort_by_key(array, key) {
+            return array.sort(function (a, b) {
+                var x = a[key]; var y = b[key];
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            });
+        }
+
+        function parseQueryParams() {
+            let queryParams = {};
+            let queryString = window.location.search.substring(1);
+            let pairs = queryString.split("&");
+
+            for (const i = 0; i < pairs.length; i++) {
+                let pair = pairs[i].split("=");
+                let key = decodeURIComponent(pair[0]);
+                let value = decodeURIComponent(pair[1] || "");
+                queryParams[key] = value;
+            }
+
+            return queryParams;
+        }
+
+        // ----------------------------------------------------------------
+
+        function bulletnator(list) {
+            let s = '<ul>';
+            for (let l of list) {
+                if (isArray(l)) {
+                    s = `${s}<li>${bulletnator(l)}</li>`;
+                } if (isObject(l)) {
+                    s = `${s}<li>${tablenator(l)}</li>`;
+                } else {
+                    s = `${s}<li>${l}</li>`;
+                }
+            }
+            return `${s}</ul>`
+        }
+
+        function tablenator(dict) {
+
+            let s = '<table>';
+            for (let key in dict) {
+
+                s = `${s}<tr><td class=short>${key}</td>`;
+
+                if ((key == 'logo' || key == 'banner' || key == 'link') && dict[key] != null) {
+                    s = `${s}<td><a href="${dict[key]}" target="_blank">${dict[key]}</a></td>`;
+                }
+
+                else if (key == 'chatColor' && dict[key] != null) {
+                    s = `${s}<td><table style="background-color: transparent;"><tr style="padding: 0px;"><td style="padding: 0px; background-color: ${dict[key]}; width:50px;"></td><td style="padding: 0px; padding-left: 5px;">${dict[key]}</td></tr></table></td>`;
+                }
+
+                else if (key == 'id' || key == 'login' || key == 'banReason') {
+                    s = `${s}<td><code>${dict[key]}</code></td>`;
+                }
+
+                else if ((key == 'createdAt' || key == 'updatedAt' || key == 'startedAt') && dict[key] != null) {
+                    s = `${s}<td>${timeToStringA(new Date(Date.parse(dict[key])))}</td>`;
+                }
+
+                else if ((key == 'follows' || key == 'followers') && dict[key] != null) {
+                    s = `${s}<td>${fmt.format(dict[key])}</td>`;
+                }
+
+                else if (isBoolean(dict[key])) {
+                    s = `${s}<td>${booleanVisualization(dict[key])}</td>`;
+                }
+
+                else if (isArray(dict[key])) {
+                    s = `${s}<td>${bulletnator(dict[key])}</td>`;
+                }
+
+                else if (isObject(dict[key])) {
+                    s = `${s}<td>${tablenator(dict[key])}</td>`;
+                }
+
+                else {
+                    s = `${s}<td>${dict[key]}</td>`;
+                }
+
+                s = `${s}</tr>`;
+
+            }
+
+            s = `${s}</table>`;
+            return s;
+
+        }
+
+        // ----------------------------------------------------------------
+
+        async function main() {
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const login = urlParams.get('login') || 'twitch';
+
+            try {
+
+                let responseIVR = await fetch(`https://api.ivr.fi/v2/twitch/user?login=${login}&skipCache=true`);
+                let resultIVR = await responseIVR.json();
+                try { delete resultIVR[0].panels; } catch (err) { null; }
+
+                let ppURL, bannerURL = 'https://i.imgur.com/4jzyyRH.png';
+                if (resultIVR[0].logo != null) { ppURL = resultIVR[0].logo; }
+                if (resultIVR[0].banner != null) { bannerURL = resultIVR[0].banner; }
+
+                document.getElementById('a-pp').href = `https://www.twitch.tv/${resultIVR[0].login}`;
+                document.getElementById('img-pp').src = ppURL;
+                document.getElementById('img-banner').src = bannerURL;
+
+                document.title = `${resultIVR[0].login} | ${resultIVR[0].id}`;
+
+                function autoButtonInnerHTML(id) {
+                    return `<div><button id="${id}"><code>[LOADING]</code></button></div>`;
+                }
+
+                function clickButtonInnerHTML(id) {
+                    return `<div><button id="${id}"><code>[EXPAND]</code></button></div>`;
+                }
+
+                Object.assign(resultIVR[0], { 'profileViewCount': autoButtonInnerHTML('buttonProfileViewCount') });
+                Object.assign(resultIVR[0], { 'pastStreams': clickButtonInnerHTML('buttonPastStreams') });
+                Object.assign(resultIVR[0], { 'vods': clickButtonInnerHTML('buttonVODs') });
+                Object.assign(resultIVR[0], { 'clips': clickButtonInnerHTML('buttonClips') });
+                Object.assign(resultIVR[0], { 'emotes': autoButtonInnerHTML('buttonEmotes') });
+                Object.assign(resultIVR[0], { 'subBadges': autoButtonInnerHTML('buttonSubscriberBadges') });
+                Object.assign(resultIVR[0], { 'bitBadges': autoButtonInnerHTML('buttonBitBadges') });
+                Object.assign(resultIVR[0], { 'cheermotes': autoButtonInnerHTML('buttonCheermotes') });
+                Object.assign(resultIVR[0], { 'socialMedias': autoButtonInnerHTML('buttonSocialMedias') });
+                Object.assign(resultIVR[0], { 'link': `https://www.twitch.tv/${resultIVR[0].login}` });
+                Object.assign(resultIVR[0], { 'stats': `<a href="https://sullygnome.com/channel/${resultIVR[0].login}" target="_blank">SullyGnome</a> | <a href="https://twitchtracker.com/${resultIVR[0].login}" target="_blank">TwitchTracker</a> | <a href="https://streamscharts.com/channels/${resultIVR[0].login}" target="_blank">StreamsCharts</a>` });
+
+                let loaderInnerHTML = `<div class=loader></div>`;
+
+                // ----------------------------------------------------------------
+
+                document.getElementById('info').innerHTML = tablenator(resultIVR[0]);
+
+                // ----------------------------------------------------------------
+
+                // section ProfileViewCount
+                if (true) {
+                    let buttonProfileViewCount = document.getElementById(`buttonProfileViewCount`);
+                    let divProfileViewCount = buttonProfileViewCount.parentElement;
+                    async function functionProfileViewCount() {
+                        divProfileViewCount.innerHTML = loaderInnerHTML;
+                        try {
+                            let responseUsers = await fetch(`https://api.twitch.tv/helix/users?login=${resultIVR[0].login}`, {
+                                "headers": API_HEADERS,
+                                "method": "GET",
+                            });
+                            let resultAPI = await responseUsers.json();
+                            divProfileViewCount.innerHTML = fmt.format(resultAPI.data[0].view_count);
+                        } catch (err) {
+                            divProfileViewCount.innerHTML = null;
+                        }
+                    };
+                    functionProfileViewCount();
+                }
+
+                // section PastStreams
+                if (true) {
+                    let buttonPastStreams = document.getElementById(`buttonPastStreams`);
+                    let divPastStreams = buttonPastStreams.parentElement;
+                    buttonPastStreams.addEventListener('click', async function () {
+                        // loader
+                        divPastStreams.innerHTML = loaderInnerHTML;
+                        let s = null;
+
+                        try {
+
+                            /*
+                            streamschars notes
+                            marker
+                            <tr class="text-sm group">
+
+                            date marker [+1]
+                            <span class="text-sm font-bold">
+
+                            a href marker
+                            ^ date but [-2]
+
+                            peak viewer marker
+                            1st <div class="t_p"> [-2]
+
+                            average viewer marker
+                            2nd <div class="t_p"> [-2]
+
+                            stream length/airtime marker
+                            3rd <div class="t_p"> [-2]
+
+                            title marker [-1]
+                            <span class="hidden ml-4 select-none" :class="{ 'hidden': !isTick }">
+
+                            games marker [+1]
+                            regex: ^(\s+)t_i_g$
+                            or just trim() and search t_i_g
+
+                            thumbnail marker [0]
+                            string.include('https://cdn.escharts.com/sc/')
+                            */
+
+                            let responseStreamsCharts = await requests(`GET`, `https://api.allorigins.win/raw?url=https://streamscharts.com/channels/${resultIVR[0].login}/streams`);
+
+                            if (responseStreamsCharts.status == 200) {
+
+                                function dateParser(str) {
+                                    try {
+                                        if (str.split(', ')[0].split(' ').length < 3) {
+                                            return new Date(Date.parse(str.replace(', ', ` ${new Date().getFullYear()}, `)));
+                                        } else {
+                                            return new Date(Date.parse(str));
+                                        }
+                                    } catch (err) {
+                                        return str;
+                                    }
+                                }
+
+                                let lines = (responseStreamsCharts.response).split('\n');
+
+                                let date_link_index = [];
+                                let peak_avg_length_index = [];
+                                let title_index = [];
+                                let games_index = [];
+                                let thumbnail_index = [];
+                                for (let i = 0; i < lines.length; i++) {
+                                    if (lines[i].trim() == '<span class="text-sm font-bold">') date_link_index.push(i);
+                                    if (lines[i].trim() == '<div class="t_p">') peak_avg_length_index.push(i);
+                                    if (lines[i].trim() == '<span class="hidden ml-4 select-none" :class="{ \'hidden\': !isTick }">') title_index.push(i);
+                                    if (lines[i].trim() == 't_i_g') games_index.push(i);
+                                    if (lines[i].trim().includes('https://cdn.escharts.com/sc/')) thumbnail_index.push(i);
+                                }
+
+                                if ((date_link_index.length > 0) && (peak_avg_length_index.length > 0) && (title_index.length > 0) && (games_index.length > 0) && (thumbnail_index.length > 0)) {
+                                    s = `<table class="searchable sortable"><thead><th>thumb</th><th class=short>date</th><th class=short>length</th><th class="short contentWidth" style="text-align:end">~/↑</th><th>title</th></thead><tbody>`;
+                                    for (let i = 0; i < date_link_index.length; i++) {
+                                        s = `${s}<tr>`;
+                                        // -----
+                                        let link = lines[date_link_index[i] - 1].split('"')[1];
+                                        // thumbnail and link
+                                        s = `${s}<td class=thumbnail><div class=thumbnail><a href="${link}" target="_blank"><img src="${lines[thumbnail_index[i]].split(`"`)[1]}"></a></div></td>`;
+                                        // date
+                                        let date = lines[date_link_index[i] + 1].trim();
+                                        if (date.includes(`<div class="flex items-center">`)) date = date.split(`</span>`)[1];
+                                        date = timeToStringB(dateParser(date));
+                                        if (lines[date_link_index[i] + 1].trim().includes(`<div class="flex items-center">`)) date = `🔴 ` + date;
+                                        date = date.replace(', ', '<br>');
+                                        s = `${s}<td class=contentWidth>${date}</td>`;
+                                        // length
+                                        s = `${s}<td class=contentWidth style="text-align:end">${lines[peak_avg_length_index[(i * 3) + 2] - 2].trim().replace(` `, `<br>`)}</td>`;
+                                        // average and peak
+                                        s = `${s}<td class=contentWidth style="text-align:end">${lines[peak_avg_length_index[(i * 3) + 1] - 2].trim()}<br>${lines[peak_avg_length_index[(i * 3) + 0] - 2].trim()}</td>`;
+                                        // title and games
+                                        s = `${s}<td>${lines[title_index[i] + 1].trim()}<br><i>${lines[games_index[i] + 1].split(`"`)[2]}</i></td>`
+                                        // -----
+                                        s = `${s}</tr>`;
+                                    }
+                                    s = `${s}</tbody></table>`;
+                                }
+
+                            }
+
+                            divPastStreams.innerHTML = s;
+
+                        }
+
+                        catch (err) {
+                            divPastStreams.innerHTML = `[ERR]`;
+                        }
+
+                    });
+                }
+
+                // section VODs
+                if (true) {
+                    let buttonVODs = document.getElementById('buttonVODs');
+                    let divVODs = buttonVODs.parentElement;
+                    buttonVODs.addEventListener('click', async function () {
+                        // loader
+                        divVODs.innerHTML = loaderInnerHTML;
+                        try {
+
+                            let responseVODs = await fetch("https://gql.twitch.tv/gql", {
+                                "method": "POST",
+                                "headers": GQL_HEADERS,
+                                "body": `[{"operationName":"FilterableVideoTower_Videos","variables":{"limit":100,"channelOwnerLogin":"${resultIVR[0].login}","broadcastType":"ARCHIVE","videoSort":"TIME"},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"a937f1d22e269e39a03b509f65a7490f9fc247d7f83d6ac1421523e3b68042cb"}}}]`
+                            });
+
+                            let resultVODs = await responseVODs.json();
+
+                            if ((resultVODs[0].data.user.videos.edges).length > 0) {
+                                let tableVODs = `<table><thead><th class=short>thumb<th class=short>date<th class=short>length<th>title</thead><tbody>`;
+                                for (let d of resultVODs[0].data.user.videos.edges) {
+                                    tableVODs = `${tableVODs}<tr>`;
+                                    // thumbnail
+                                    let width = 80;
+                                    let height = 45;
+                                    let thumbnail = `https://vod-secure.twitch.tv/_404/404_processing_320x180.png`;
+                                    if (!(d.node.previewThumbnailURL).includes("/_404")) {
+                                        thumbnail = (d.node.previewThumbnailURL).replaceAll(`320x180.`, `${width}x${height}.`);
+                                    }
+                                    tableVODs = `${tableVODs}<td class=thumbnail><a href="https://www.twitch.tv/videos/${d.node.id}" target="_blank"><div class=thumbnail><img src="${thumbnail}"></div></a></td>`;
+                                    // date
+                                    tableVODs = `${tableVODs}<td>${timeToStringB(new Date(Date.parse(d.node.publishedAt)))}</td>`;
+                                    // length
+                                    tableVODs = `${tableVODs}<td style="text-align:end">${secondToHMS(d.node.lengthSeconds)}</td>`;
+                                    // title
+                                    if (d.node.game != null) {
+                                        tableVODs = `${tableVODs}<td>${d.node.title}<br><i>${d.node.game.name}</i></td>`;
+                                    } else {
+                                        tableVODs = `${tableVODs}<td>${d.node.title}</td>`;
+                                    }
+                                    tableVODs = `${tableVODs}</tr>`;
+                                }
+                                tableVODs = `${tableVODs}</tbody></table>`;
+                                divVODs.innerHTML = tableVODs;
+                            } else {
+                                divVODs.innerHTML = null;
+                            }
+                        } catch (err) {
+                            divVODs.innerHTML = `[ERR]`;
+                        }
+                    });
+                }
+
+                // section Clips
+                if (true) {
+                    let buttonClips = document.getElementById('buttonClips');
+                    let divClips = buttonClips.parentElement;
+                    buttonClips.addEventListener('click', async function () {
+                        // loader
+                        divClips.innerHTML = loaderInnerHTML;
+                        try {
+
+                            let responseClips = await fetch("https://gql.twitch.tv/gql", {
+                                "method": "POST",
+                                "headers": GQL_HEADERS,
+                                "body": `[{"operationName":"ClipsCards__User","variables":{"login":"${resultIVR[0].login}","limit":100,"criteria":{"filter":"ALL_TIME"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"b73ad2bfaecfd30a9e6c28fada15bd97032c83ec77a0440766a56fe0bd632777"}}}]`
+                            });
+
+                            let resultClips = await responseClips.json();
+
+                            if ((resultClips[0].data.user.clips.edges).length > 0) {
+                                let tableClips = `<table><thead><th class=short>thumb<th class=short>date<th class=short>views<th>title</thead><tbody>`;
+                                for (let d of resultClips[0].data.user.clips.edges) {
+                                    tableClips = `${tableClips}<tr>`;
+                                    // thumbnail
+                                    tableClips = `${tableClips}<td class=thumbnail><a href="${d.node.url}" target="_blank"><div class=thumbnail><img src="${d.node.thumbnailURL}"></div></a></td>`;
+                                    // date
+                                    tableClips = `${tableClips}<td>${timeToStringB(new Date(Date.parse(d.node.createdAt)))}</td>`;
+                                    // views
+                                    tableClips = `${tableClips}<td style="text-align:end">${fmt.format(d.node.viewCount)}</td>`;
+                                    // title
+                                    if (d.node.game != null) {
+                                        tableClips = `${tableClips}<td>${d.node.title}<br><i>${d.node.game.name}</i></td>`;
+                                    } else {
+                                        tableClips = `${tableClips}<td>${d.node.title}</td>`;
+                                    }
+                                    tableClips = `${tableClips}</tr>`;
+                                }
+                                tableClips = `${tableClips}</tbody></table>`;
+                                divClips.innerHTML = tableClips;
+                            } else {
+                                divClips.innerHTML = null;
+                            }
+                        } catch (err) {
+                            divClips.innerHTML = `[ERR]`;
+                            console.log(err);
+                        }
+                    });
+                }
+
+                // section Emotes
+                if (true) {
+                    let buttonEmotes = document.getElementById(`buttonEmotes`);
+                    let divEmotes = buttonEmotes.parentElement;
+                    async function functionEmotes() {
+                        divEmotes.innerHTML = loaderInnerHTML;
+                        try {
+
+                            let responseEmotes = await fetch(`https://api.twitch.tv/helix/chat/emotes?broadcaster_id=${resultIVR[0].id}`, {
+                                "headers": API_HEADERS,
+                                "method": "GET",
+                            });
+                            let resultEmotes = await responseEmotes.json();
+
+                            if ((resultEmotes.data).length > 0) {
+
+                                // sorting the array
+                                for (let i = 0; i < (resultEmotes.data).length; i++) {
+                                    resultEmotes.data[i].tier = parseInt(resultEmotes.data[i].tier);
+                                    if (isNaN(resultEmotes.data[i].tier)) resultEmotes.data[i].tier = 0;
+                                }
+                                resultEmotes.data = sort_by_key(resultEmotes.data, `tier`);
+
+
+                                let s = `<div class="flex">`;
+
+                                for (let d of resultEmotes.data) {
+                                    let l = d.images.url_4x;
+
+                                    // https://static-cdn.jtvnw.net/emoticons/v2/{{id}}/{{format}}/{{theme_mode}}/{{scale}}
+                                    if ((d.format).includes('animated')) l = (resultEmotes.template).replace(`{{id}}`, d.id).replace(`{{format}}`, `animated`).replace(`{{theme_mode}}`, `dark`).replace(`{{scale}}`, `3.0`);
+                                    else l = (resultEmotes.template).replace(`{{id}}`, d.id).replace(`{{format}}`, `static`).replace(`{{theme_mode}}`, `dark`).replace(`{{scale}}`, `3.0`);
+
+                                    s = `${s}<div class=emotebox>`;
+                                    s = `${s}<div class=emote>`;
+                                    s = `${s}<a href="${l}" class="hoverZoomLink" target="_blank"><img src="${l}"></a>`;
+                                    s = `${s}</div>`;
+                                    s = `${s}<div class=emoteinfo>`;
+                                    s = `${s}${d.tier}<br>${d.name}`;
+                                    s = `${s}</div>`;
+                                    s = `${s}</div>`;
+                                }
+
+                                s = `${s}</div>`;
+                                divEmotes.innerHTML = s;
+                            }
+
+                            else {
+                                divEmotes.innerHTML = null;
+                            }
+
+
+                        } catch (err) {
+                            divEmotes.innerHTML = '[ERR]';
+                        }
+                    };
+                    functionEmotes();
+                }
+
+                // section Badges
+                if (true) {
+
+                    let buttonSubscriberBadges = document.getElementById(`buttonSubscriberBadges`);
+                    let buttonBitBadges = document.getElementById(`buttonBitBadges`);
+                    let divSubscriberBadges = buttonSubscriberBadges.parentElement;
+                    let divBitBadges = buttonBitBadges.parentElement;
+
+                    async function functionBadges() {
+                        divSubscriberBadges.innerHTML = loaderInnerHTML;
+                        divBitBadges.innerHTML = loaderInnerHTML;
+                        try {
+
+                            let responseBadges = await fetch(`https://api.twitch.tv/helix/chat/badges?broadcaster_id=${resultIVR[0].id}`, {
+                                "headers": API_HEADERS,
+                                "method": "GET",
+                            });
+                            let resultBadges = await responseBadges.json();
+
+                            function badges(b) {
+                                let s = `<div class="flex">`;
+
+                                // sorting the array
+                                for (let i = 0; i < (b.versions).length; i++) {
+                                    b.versions[i].id = parseInt(b.versions[i].id);
+                                    if (isNaN(b.versions[i].id)) b.versions[i].id = 0;
+                                }
+                                b.versions = sort_by_key(b.versions, `id`);
+
+                                for (let d of b.versions) {
+                                    s = `${s}<div class=emotebox>`;
+                                    s = `${s}<div class=emote>`;
+                                    s = `${s}<a href="${d.image_url_4x}" class="hoverZoomLink" target="_blank"><img src="${d.image_url_4x}"></a>`;
+                                    s = `${s}</div>`;
+                                    s = `${s}<div class=emoteinfo>`;
+                                    s = `${s}${d.id}`;
+                                    s = `${s}</div>`;
+                                    s = `${s}</div>`;
+                                }
+
+                                s = `${s}</div>`;
+                                return s;
+                            }
+
+                            let strSubs = null;
+                            let strBits = null;
+                            for (let b of resultBadges.data) {
+                                if (b.set_id == `subscriber`) strSubs = badges(b);
+                                if (b.set_id == `bits`) strBits = badges(b);
+                            }
+
+                            divSubscriberBadges.innerHTML = strSubs;
+                            divBitBadges.innerHTML = strBits;
+                        }
+
+                        catch (err) {
+                            divSubscriberBadges.innerHTML = `[ERR]`;
+                            divBitBadges.innerHTML = `[ERR]`;
+                        }
+                    };
+
+                    functionBadges();
+
+                }
+
+                // section Cheermotes
+                if (true) {
+
+                    let buttonCheermotes = document.getElementById(`buttonCheermotes`);
+                    let divCheermotes = buttonCheermotes.parentElement;
+
+                    async function functionCheermotes() {
+                        divCheermotes.innerHTML = loaderInnerHTML;
+                        try {
+
+                            let responseCheermotes = await fetch(`https://api.twitch.tv/helix/bits/cheermotes?broadcaster_id=${resultIVR[0].id}`, {
+                                "headers": API_HEADERS,
+                                "method": "GET",
+                            });
+                            let resultCheermotes = await responseCheermotes.json();
+
+                            function cheermotes(b) {
+                                let s = `<div class="flex">`;
+
+                                for (let d of b.tiers) {
+                                    s = `${s}<div class=emotebox>`;
+                                    s = `${s}<div class=emote>`;
+
+                                    if ('animated' in d.images.dark) s = `${s}<a href="${d.images.dark.animated['4']}" class="hoverZoomLink" target="_blank"><img src="${d.images.dark.animated['4']}"></a>`;
+                                    else s = `${s}<a href="${d.images.dark.static['4']}" class="hoverZoomLink" target="_blank"><img src="${d.images.dark.static['4']}"></a>`;
+
+                                    s = `${s}</div>`;
+                                    s = `${s}<div class=emoteinfo>`;
+                                    s = `${s}${d.min_bits}<br>${b.prefix}`;
+                                    s = `${s}</div>`;
+                                    s = `${s}</div>`;
+                                }
+
+                                s = `${s}</div>`;
+                                return s;
+                            }
+
+                            let s = null;
+                            for (let b of resultCheermotes.data) {
+                                if (b.type == `channel_custom`) {
+                                    if (s == null) s = cheermotes(b);
+                                    else s = `${s}${cheermotes(b)}`;
+                                }
+                            }
+
+                            divCheermotes.innerHTML = s;
+                        }
+
+                        catch (err) {
+                            divCheermotes.innerHTML = `[ERR]`;
+                        }
+                    };
+
+                    functionCheermotes();
+
+                }
+
+                // section SocialMedias
+                if (true) {
+
+                    let buttonSocialMedias = document.getElementById(`buttonSocialMedias`);
+                    let divSocialMedias = buttonSocialMedias.parentElement;
+
+                    async function functionSocialMedias() {
+                        divSocialMedias.innerHTML = loaderInnerHTML;
+                        try {
+
+                            let responseSocialMedias = await fetch("https://gql.twitch.tv/gql", {
+                                "method": "POST",
+                                "headers": GQL_HEADERS,
+                                "body": `[{"operationName": "ChannelRoot_AboutPanel", "variables": {"channelLogin": "${resultIVR[0].login}", "skipSchedule": true}, "extensions": {"persistedQuery": {"version": 1, "sha256Hash": "6089531acef6c09ece01b440c41978f4c8dc60cb4fa0124c9a9d3f896709b6c6"}}}]`
+                            });
+
+                            let resultSocialMedias = await responseSocialMedias.json();
+
+                            let s = null;
+                            if ((resultSocialMedias[0].data.user.channel.socialMedias).length > 0) {
+                                s = `<table>`;
+                                resultSocialMedias[0].data.user.channel.socialMedias = sort_by_key(resultSocialMedias[0].data.user.channel.socialMedias, `name`);
+                                for (let sosmed of resultSocialMedias[0].data.user.channel.socialMedias) {
+                                    s = `${s}<tr>`;
+                                    s = `${s}<td class=short>${sosmed.name}</td>`;
+                                    s = `${s}<td><a href="${sosmed.url}" target="_blank">${sosmed.title}</a></td>`;
+                                    s = `${s}</tr>`;
+                                }
+                                s = `${s}</table>`;
+                            }
+
+                            divSocialMedias.innerHTML = s;
+                        }
+
+                        catch (err) {
+                            divSocialMedias.innerHTML = `[ERR]`;
+                        }
+                    };
+
+                    functionSocialMedias();
+
+                }
+
+            }
+
+            catch (err) {
+                document.body.innerHTML = `
+                    <div class="showerror" style="font-size: 14pt;">
+                        User [<code><span id="login" style="font-size: 15pt;">${login}</span></code>] not found
+                    </div>  
+                `;
+            }
+
+        }
+
+    </script>
+
+</head>
+
+<body onload="main()">
+
+    <div class=box>
+
+        <div id="banner" class="banner">
+            <img id="img-banner" alt="banner" src="https://i.imgur.com/4jzyyRH.png">
+            <div id="pp" class="pp">
+                <a id="a-pp" href='https://www.twitch.tv/twitch'>
+                    <img id="img-pp" alt="pp" src="https://i.imgur.com/4jzyyRH.png">
+                </a>
+            </div>
+        </div>
+
+        <div class="info" id="info">
+            <div class=loader></div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>
