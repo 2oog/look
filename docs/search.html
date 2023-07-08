@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Look</title>
+
+    <style>
+        body,
+        button {
+            background-color: #000;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: #bbb;
+            font-size: 12px
+        }
+
+        code {
+            font-size: 12px
+        }
+
+        button {
+            border: 0;
+            padding: 0;
+            background-color: transparent;
+            cursor: pointer
+        }
+
+        i {
+            font-size: 9px
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            user-select: none
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background-color: #222
+        }
+
+        td,
+        th {
+            text-align: left;
+            padding: 5px;
+            overflow: hidden
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.05)
+        }
+
+        ul {
+            padding-left: 15px;
+            margin-top: 0;
+            margin-bottom: 0
+        }
+
+        a:link {
+            color: #bbb;
+            text-decoration: none
+        }
+
+        a:visited {
+            color: #c0c
+        }
+
+        a:hover {
+            color: #adff2f
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #111
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #222
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #333
+        }
+
+        .box {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden
+        }
+
+        .banner {
+            width: 100%;
+            height: 15rem
+        }
+
+        .pp {
+            filter: drop-shadow(0 0 20px #000) drop-shadow(0 0 10px rgba(0, 0, 0, .5));
+            width: 6rem;
+            height: 6rem;
+            position: relative;
+            bottom: calc(1.5rem + 6rem);
+            left: 1.5rem
+        }
+
+        .forcewrap {
+            word-wrap: break-word
+        }
+
+        .info {
+            padding: 5px
+        }
+
+        .InfoPanelCellImagePanel {
+            width: 2rem;
+            height: 2rem
+        }
+
+
+
+        .flex {
+            flex-wrap: wrap;
+            display: flex
+        }
+
+        .short {
+            width: 1rem
+        }
+
+        .contentWidth {
+            overflow: hidden;
+            white-space: nowrap
+        }
+
+        .emote {
+            width: 68px;
+            height: 68px;
+        }
+
+        .emotebox {
+            width: 300px;
+            height: fit-content;
+            padding: 5px;
+            word-wrap: break-word;
+            font-size: 12px;
+            text-align: center
+        }
+
+        .emotebox:hover {
+            background-color: rgba(255, 255, 255, 0.05)
+        }
+
+        .tags {
+            padding: 0px 5px;
+            background-color: #222;
+            margin: 2.5px;
+            border-radius: 5px;
+        }
+    </style>
+
+    <script src="./js/auth.js"></script>
+    <script src="./js/functions.js"></script>
+    <link rel="stylesheet" href="./css/loader.css">
+
+    <script>
+
+        async function fetchSearch(query, turnitoff = true) {
+            if (turnitoff) {
+
+                let data = [];
+
+                let pagination = { cursor: "" }; // Initial pagination value
+                while (Object.keys(pagination).length !== 0) {
+                    const response = await fetch(`https://api.twitch.tv/helix/search/channels?query=${encodeURIComponent(query)}&live_only=true&first=100&after=${pagination.cursor}`, {
+                        "headers": API_HEADERS,
+                        "method": "GET",
+                    });
+                    const result = await response.json();
+                    data = data.concat(result.data); // Accumulate the data array
+                    pagination = result.pagination; // Update the pagination object
+                }
+
+                return data;
+
+            } else { return null };
+        }
+
+        function toTags(tags) {
+            let str = '';
+            tags.forEach(tag => {
+                str = `${str}<div class="tags"><a target="_blank" href="https://www.twitch.tv/directory/all/tags/${tag}">${tag}</a></div>\n`;
+            });
+            return str;
+        }
+
+        function toEntry(entry) {
+            const element = document.createElement('div');
+            element.className = `emotebox`;
+
+            element.innerHTML = `
+                <table>
+                    <tr>
+                        <a target="_blank" href="https://twitch.tv/${entry.broadcaster_login}">
+                            <img src="https://static-cdn.jtvnw.net/previews-ttv/live_user_${entry.broadcaster_login}-480x270.jpg">
+                        </a>
+                    </tr>
+                    <tr>
+                        <td rowspan="3" class="short emote">
+                            <div class="emote">
+                                <a target="_blank" href="https://twitch.tv/${entry.broadcaster_login}">
+                                    <img src="${entry.thumbnail_url}">
+                                </a>
+                            </div>
+                        </td>
+                        <td>${entry.id}</td>
+                    </tr>
+                    <tr>
+                        <td>${entry.broadcaster_login}</td>
+                    </tr>
+                    <tr>
+                        <td>${entry.display_name}</td>
+                    </tr>
+                    <tr>
+                        <td>title</td>
+                        <td>${entry.title}</td>
+                    </tr>
+                    <tr>
+                        <td>game</td>
+                        <td>${entry.game_name}</td>
+                    </tr>
+                    <tr>
+                        <td>language</td>
+                        <td>${entry.broadcaster_language}</td>
+                    </tr>
+                    <tr>
+                        <td>tags</td>
+                        <td class="flex" style="padding: 2.5px;">${toTags(entry.tags)}</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2">started at</td>
+                        <td>${timeToStringA(new Date(Date.parse(entry.started_at)), false)}</td>
+                    </tr>
+                    <tr>
+                        <td class="uptime" data-timestamp="${entry.started_at}">${timeDiff(new Date(Date.parse(entry.started_at))).replace(/[\[\]]/g, '')}</td>
+                    </tr>
+                </table>
+            `;
+
+            return element;
+        }
+
+        async function main() {
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = urlParams.get('q') || '';
+
+            const entries = document.getElementById('entries');
+            entries.innerHTML = `<div class="loader"></div>`;
+
+            if (query == '') {
+                entries.innerHTML = 'No query given';
+            }
+
+            else {
+                const data = await fetchSearch(query);
+                entries.innerHTML = ``;
+                data.forEach(entry => {
+                    entries.append(toEntry(entry));
+                });
+            }
+
+            setInterval(() => {
+                const uptimes = document.querySelectorAll(".uptime");
+                uptimes.forEach(uptime => {
+                    uptime.innerHTML = timeDiff(new Date(Date.parse(uptime.dataset.timestamp))).replace(/[\[\]]/g, '');
+                });
+            }, 1 * 1000);
+
+        }
+
+    </script>
+
+</head>
+
+<body onload="main()">
+
+    <div class=box>
+        <div class="info" id="info">
+            <div class="flex" id="entries">
+                ...
+            </div>
+        </div>
+
+</body>
+
+</html>
