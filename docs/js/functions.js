@@ -40,7 +40,7 @@ function timeDiff(dt) {
     }
 }
 
-function timeToStringA(dt) {
+function timeToStringA(dt, withTimeDiff = true) {
     let option = {
         weekday: 'short',
         day: 'numeric',
@@ -52,7 +52,7 @@ function timeToStringA(dt) {
         hourCycle: 'h23',
         timeZoneName: 'short'
     };
-    return `${dt.toLocaleString("en-GB", option)} <code>${timeDiff(dt)}</code>`;
+    return dt.toLocaleString("en-GB", option) + (withTimeDiff ? `<code>${timeDiff(dt)}</code>` : ``);
 }
 
 function timeToStringB(dt) {
