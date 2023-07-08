@@ -7,6 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Look</title>
 
+    <script src="./js/auth.js"></script>
+    <script src="./js/functions.js"></script>
+    <link rel="stylesheet" href="./css/loader.css">
+
     <style>
         body,
         button {
@@ -148,35 +152,6 @@
             white-space: nowrap
         }
 
-        .loader {
-            width: 100%;
-            height: 5px;
-            position: relative;
-            overflow: hidden
-        }
-
-        .loader::after {
-            content: '';
-            width: 50%;
-            height: 5px;
-            background: #fff;
-            position: absolute;
-            box-sizing: border-box;
-            animation: hitZak .5s ease-in-out infinite normal
-        }
-
-        @keyframes hitZak {
-            0% {
-                left: 0;
-                transform: translateX(-100%)
-            }
-
-            100% {
-                left: 100%;
-                transform: translateX(0)
-            }
-        }
-
         .emote {
             width: 48px;
             height: 48px;
@@ -205,9 +180,6 @@
             transform: translate(-50%, -50%)
         }
     </style>
-
-    <script src="./js/auth.js"></script>
-    <script src="./js/functions.js"></script>
 
     <script>
 
@@ -322,7 +294,7 @@
                             string.include('https://cdn.escharts.com/sc/')
                             */
 
-                            let responseStreamsCharts = await requests(`GET`, `https://api.allorigins.win/raw?url=https://streamscharts.com/channels/${resultIVR[0].login}/streams`);
+                            let responseStreamsCharts = await fetch(`https://api.allorigins.win/raw?url=https://streamscharts.com/channels/${resultIVR[0].login}/streams`);
 
                             if (responseStreamsCharts.status == 200) {
 
@@ -338,7 +310,7 @@
                                     }
                                 }
 
-                                let lines = (responseStreamsCharts.response).split('\n');
+                                let lines = (await responseStreamsCharts.text()).split('\n');
 
                                 let date_link_index = [];
                                 let peak_avg_length_index = [];
