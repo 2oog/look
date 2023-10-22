@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chivo+Mono&display=swap" rel="stylesheet">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+
+    <style>
+        :root {
+            --border-radius: 1rem;
+        }
+
+        * {
+            font-family: 'Chivo Mono', monospace;
+            color: white;
+            font-size: 18px;
+        }
+
+        body {
+            background-color: black;
+        }
+
+        input,
+        select {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            outline: none;
+            box-sizing: border-box;
+            resize: vertical;
+            text-align: right;
+            color: white;
+            background-color: transparent;
+        }
+
+        .row {
+            display: flex;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            background-color: #1b1b25;
+            border-radius: 1rem;
+        }
+
+        .column {
+            padding: 10px;
+            text-align: right;
+            box-sizing: border-box;
+        }
+
+        .left {
+            flex-basis: 75%;
+        }
+
+        .right {
+            flex-basis: 25%;
+        }
+    </style>
+
+    <script>
+        const fmt = new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+
+        function formatting(number) {
+            let str = fmt.format(number);
+            if (str.substring(str.length - 2) === '00') {
+                str = str.slice(0, -3) + '&nbsp;&nbsp;&nbsp;';
+            } else if (str.substring(str.length - 1) === '0') {
+                str = str.slice(0, -1) + '&nbsp;';
+            }
+            return str;
+        }
+
+        function calculate() {
+            const priceInput = document.getElementById('priceInput');
+            const calcInput = document.getElementById('calcInput');
+            const mathExpression = calcInput.value.replace(/[^\d+\-*/().]/g, '');
+            const choice = document.getElementById('choice');
+            let multiplier = 1;
+
+            if (choice.value === '100n') {
+                multiplier = 100;
+            } else if (choice.value === 'Kn') {
+                multiplier = 1000;
+            }
+
+            try {
+                const calcResult = eval(mathExpression) * multiplier;
+                document.getElementById("calcResult").innerHTML = formatting(calcResult);
+
+                const perN = Number(priceInput.value) / calcResult;
+                document.getElementById("perN").innerHTML = formatting(perN);
+
+                const per100N = (Number(priceInput.value) * 100) / calcResult;
+                document.getElementById("per100N").innerHTML = formatting(per100N);
+
+                const perKN = (Number(priceInput.value) * 1000) / calcResult;
+                document.getElementById("perKN").innerHTML = formatting(perKN);
+            } catch (e) {
+                document.getElementById("calcResult").innerHTML = `[ ${e.message} ]`;
+                document.getElementById("perN").innerHTML = `[ ${e.message} ]`;
+                document.getElementById("per100N").innerHTML = `[ ${e.message} ]`;
+                document.getElementById("perKN").innerHTML = `[ ${e.message} ]`;
+            }
+        }
+    </script>
+
+</head>
+
+
+<body>
+
+    <div class="row">
+        <div class="column left" id="calcResult">
+
+        </div>
+        <div class="column right">
+            n
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="column left" id="perN">
+
+        </div>
+        <div class="column right">
+            /n
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="column left" id="per100N">
+
+        </div>
+        <div class="column right">
+            /100n
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="column left" id="perKN">
+
+        </div>
+        <div class="column right">
+            /Kn
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="column left" id="">
+            <input style="text-align: left;" type="number" id="priceInput" placeholder="price" oninput="calculate()">
+        </div>
+        <div class="column right">
+            EUR
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="column left" id="">
+            <input style="text-align: left;" type="tel" id="calcInput" placeholder="amount" oninput="calculate()">
+        </div>
+        <div class="column right">
+            <select id="choice" name="choice" oninput="calculate()">
+                <option value="n">n</option>
+                <option value="100n">100n</option>
+                <option value="Kn">Kn</option>
+            </select>
+        </div>
+    </div>
+
+</body>
+
+</html>
