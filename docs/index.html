@@ -179,6 +179,30 @@
             margin-right: -50%;
             transform: translate(-50%, -50%)
         }
+
+        .usernames {
+            color: white;
+            padding: 1px 4px;
+            margin: 2px;
+            border-radius: 5px;
+        }
+
+        .usernames:hover {
+            background-color: #222;
+            background-image: none
+        }
+
+        .mods {
+            background-color: #047c06;
+        }
+
+        .vips {
+            background-color: #ad048e;
+        }
+
+        .founders {
+            background-image: linear-gradient(45deg, #ad048e, #6b3ec3);
+        }
     </style>
 
     <script>
@@ -213,14 +237,17 @@
                 }
 
                 Object.assign(resultIVR[0], { 'profileViewCount': autoButtonInnerHTML('buttonProfileViewCount') });
-                Object.assign(resultIVR[0], { 'pastStreams': clickButtonInnerHTML('buttonPastStreams') });
+                Object.assign(resultIVR[0], { 'moderators': autoButtonInnerHTML('buttonMods') });
+                Object.assign(resultIVR[0], { 'vips': autoButtonInnerHTML('buttonVips') });
+                Object.assign(resultIVR[0], { 'founders': autoButtonInnerHTML('buttonFounders') });
+                // Object.assign(resultIVR[0], { 'pastStreams': clickButtonInnerHTML('buttonPastStreams') });
                 Object.assign(resultIVR[0], { 'vods': clickButtonInnerHTML('buttonVODs') });
                 Object.assign(resultIVR[0], { 'clips': clickButtonInnerHTML('buttonClips') });
                 Object.assign(resultIVR[0], { 'emotes': autoButtonInnerHTML('buttonEmotes') });
                 Object.assign(resultIVR[0], { 'subBadges': autoButtonInnerHTML('buttonSubscriberBadges') });
                 Object.assign(resultIVR[0], { 'bitBadges': autoButtonInnerHTML('buttonBitBadges') });
                 Object.assign(resultIVR[0], { 'cheermotes': autoButtonInnerHTML('buttonCheermotes') });
-                Object.assign(resultIVR[0], { 'socialMedias': autoButtonInnerHTML('buttonSocialMedias') });
+                // Object.assign(resultIVR[0], { 'socialMedias': autoButtonInnerHTML('buttonSocialMedias') });
                 Object.assign(resultIVR[0], { 'link': `https://www.twitch.tv/${resultIVR[0].login}` });
                 Object.assign(resultIVR[0], { 'stats': `<a href="https://sullygnome.com/channel/${resultIVR[0].login}" target="_blank">SullyGnome</a> | <a href="https://twitchtracker.com/${resultIVR[0].login}" target="_blank">TwitchTracker</a> | <a href="https://streamscharts.com/channels/${resultIVR[0].login}" target="_blank">StreamsCharts</a>` });
 
@@ -253,7 +280,7 @@
                 }
 
                 // section PastStreams
-                if (true) {
+                if (false) {
                     let buttonPastStreams = document.getElementById(`buttonPastStreams`);
                     let divPastStreams = buttonPastStreams.parentElement;
                     buttonPastStreams.addEventListener('click', async function () {
@@ -646,7 +673,7 @@
                 }
 
                 // section SocialMedias
-                if (true) {
+                if (false) {
 
                     let buttonSocialMedias = document.getElementById(`buttonSocialMedias`);
                     let divSocialMedias = buttonSocialMedias.parentElement;
@@ -686,6 +713,107 @@
 
                     functionSocialMedias();
 
+                }
+
+                // section Mods/Vips
+                if (true) {
+                    let buttonMods = document.getElementById(`buttonMods`);
+                    let buttonVips = document.getElementById(`buttonVips`);
+                    let divMods = buttonMods.parentElement;
+                    let divVips = buttonVips.parentElement;
+
+                    async function functionModsVips() {
+
+                        divMods.innerHTML = loaderInnerHTML;
+                        divVips.innerHTML = loaderInnerHTML;
+
+                        try {
+                            let responseModsVips = await fetch(`https://api.ivr.fi/v2/twitch/modvip/${resultIVR[0].login}?skipCache=true`);
+                            let resultModsVips = await responseModsVips.json();
+
+                            let sMods = `<div class="flex">`;
+                            let sVips = `<div class="flex">`;
+
+                            if ('error' in resultModsVips) {
+                                s = `[${resultModsVips.statusCode}]${('message' in resultModsVips.error) ? ' ' + resultModsVips.error.message : ''}`;
+                            }
+
+                            else {
+
+                                if (resultModsVips.mods.length > 0) {
+                                    for (let mod of resultModsVips.mods) {
+                                        sMods = `${sMods}<a href="https://www.twitch.tv/${mod.login}/" target="_blank"><div class="usernames mods">${mod.displayName != null ? (mod.displayName.toLowerCase() != mod.login ? `${mod.displayName} (${mod.login})` : mod.displayName) : mod.login}</div></a>`;
+                                    }
+                                }
+
+                                if (resultModsVips.vips.length > 0) {
+                                    for (let vip of resultModsVips.vips) {
+                                        sVips = `${sVips}<a href="https://www.twitch.tv/${vip.login}/" target="_blank"><div class="usernames vips">${vip.displayName != null ? (vip.displayName.toLowerCase() != vip.login ? `${vip.displayName} (${vip.login})` : vip.displayName) : vip.login}</div></a>`;
+                                    }
+                                }
+
+                            }
+
+                            sMods = `${sMods}</div>`;
+                            sVips = `${sVips}</div>`;
+
+                            divMods.innerHTML = sMods;
+                            divVips.innerHTML = sVips;
+                        }
+
+                        catch (err) {
+                            divMods.innerHTML = `[ERR]`;
+                            divVips.innerHTML = `[ERR]`;
+                        }
+
+                    }
+
+                    functionModsVips();
+                }
+
+                // section Founders
+                if (true) {
+                    let buttonFounders = document.getElementById(`buttonFounders`);
+                    let divFounders = buttonFounders.parentElement;
+
+                    async function functionModsVips() {
+
+                        divFounders.innerHTML = loaderInnerHTML;
+
+                        try {
+                            let responseFounders = await fetch(`https://api.ivr.fi/v2/twitch/founders/${resultIVR[0].login}?skipCache=true`);
+                            let resultFounders = await responseFounders.json();
+
+                            let s = `<div class="flex">`;
+
+                            if ('error' in resultFounders) {
+                                if (resultFounders.error?.message === 'Specified user has no founders.') {
+                                    null;
+                                } else {
+                                    s = `[${resultFounders.statusCode}]${('message' in resultFounders.error) ? ' ' + resultFounders.error.message : ''}`;
+                                }
+                            }
+
+                            else {
+                                if (resultFounders.founders.length > 0) {
+                                    for (let founder of resultFounders.founders) {
+                                        s = `${s}<a href="https://www.twitch.tv/${founder.login}/" target="_blank"><div class="usernames founders">${founder.displayName != null ? (founder.displayName.toLowerCase() != founder.login ? `${founder.displayName} (${founder.login})` : founder.displayName) : founder.login}</div></a>`;
+                                    }
+                                }
+                            }
+
+                            s = `${s}</div>`;
+
+                            divFounders.innerHTML = s;
+                        }
+
+                        catch (err) {
+                            divFounders.innerHTML = `[ERR]`;
+                        }
+
+                    }
+
+                    functionModsVips();
                 }
 
             }
